@@ -24,6 +24,18 @@ export default function Authenticated({ user, header, children }) {
                                 <NavLink href={route('dashboard')} active={route().current('dashboard')}>
                                     Dashboard
                                 </NavLink>
+
+                                <NavLink href={route('projects.index')} active={route().current('projects.index')}>
+                                    Projects
+                                </NavLink>
+
+                                <NavLink href={route('tasks.index')} active={route().current('tasks.index')}>
+                                    Tasks
+                                </NavLink>
+
+                                <NavLink href={route('users.index')} active={route().current('users.index')}>
+                                    Users
+                                </NavLink>
                             </div>
                         </div>
 
@@ -97,23 +109,6 @@ export default function Authenticated({ user, header, children }) {
                         </ResponsiveNavLink>
                     </div>
 
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('projects.index')} active={route().current('projects.index')}>
-                            Projects
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('tasks.index')} active={route().current('tasks.index')}>
-                            All tasks
-                        </ResponsiveNavLink>
-                    </div>
-
-                    <div className="pt-2 pb-3 space-y-1">
-                        <ResponsiveNavLink href={route('users.index')} active={route().current('users.index')}>
-                            Users
-                        </ResponsiveNavLink>
-                    </div>
 
                     <div className="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
                         <div className="px-4">
