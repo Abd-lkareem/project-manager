@@ -6,6 +6,7 @@ use App\Models\Project;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\TaskResource;
 
 class ProjectController extends Controller
 {
@@ -16,13 +17,13 @@ class ProjectController extends Controller
     {
         $query = Project::query();
 
-        $projects = $query->Filter()->paginate(10);
+        $projects = $query->Filter()->latest('id')->paginate(10);
 
-        return inertia('Project/index' ,
-                         ['projects' => ProjectResource::collection($projects) ,
-                          'queryParams' => count(request()->query()) > 0 ?request()->query() :  null
-                          ]
-                        );
+        return inertia('Project/index' ,[
+            'projects' => ProjectResource::collection($projects) ,
+            'queryParams' => count(request()->query()) > 0 ?request()->query() :  null ,
+            'success' => session('success')
+        ]);
     }
 
     /**
@@ -30,15 +31,27 @@ class ProjectController extends Controller
      */
     public function create()
     {
-        //
+        return inertia('Project/create');
+
     }
 
     /**
      * Store a newly created resource in storage.
      */
     public function store(StoreProjectRequest $request)
-    {
-        //
+    {        
+        $data = $request->validated();
+        $file = isset($data['image']) ?  $data['image'] : null;
+
+        if($file)
+            $path = $file->store('images', 'public'); 
+        
+        Project::create([
+            ...$data ,
+            'image_path' => $path ?? null
+        ]);
+
+        return to_route('projects.index')->with('success' , 'Project Was Created');
     }
 
     /**
@@ -46,7 +59,15 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        //
+        $tasks = $project->tasks()->Filter()->paginate(10);
+    
+        return inertia('Project/show' , [
+            
+            'project' => new ProjectResource($project) ,
+            'tasks' => TaskResource::collection($tasks) ,
+            'queryParams' => count(request()->query()) > 0 ?request()->query() :  null
+
+        ]);
     }
 
     /**

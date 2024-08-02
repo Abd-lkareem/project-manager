@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Task;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
+use App\Http\Resources\TaskResource;
+
 
 class TaskController extends Controller
 {
@@ -13,7 +15,14 @@ class TaskController extends Controller
      */
     public function index()
     {
-        //
+        $query = Task::query();
+
+        $tasks = $query->Filter()->paginate(10);
+
+        return inertia('Task/index' ,[
+            'Tasks' => TaskResource::collection($tasks) ,
+            'queryParams' => count(request()->query()) > 0 ?request()->query() :  null
+        ]);
     }
 
     /**

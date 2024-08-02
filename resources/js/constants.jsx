@@ -33,5 +33,10 @@ export const PROJECT_STATUS = [
     'pending' ,
     'on_progress' ,
     'completed'  ,
+]
 
+export const TASK_STATUS = [
+    'pending' ,
+    'on_progress' ,
+    'completed'  ,
 ]

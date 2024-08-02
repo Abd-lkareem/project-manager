@@ -8,11 +8,14 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class ProjectResource extends JsonResource
 {
+
     /**
      * Transform the resource into an array.
      *
      * @return array<string, mixed>
      */
+
+    public static  $wrap = false;
     public function toArray(Request $request): array
     {
         return [
@@ -25,8 +28,6 @@ class ProjectResource extends JsonResource
             'image_path' => $this->image_path ,
             'created_by' => new UserResource($this->created_user),
             'updated_by' => new UserResource($this->updated_user) ,
-
-
          ];
     }
 }

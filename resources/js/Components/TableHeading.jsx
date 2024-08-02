@@ -3,7 +3,7 @@ import {ChevronUpIcon , ChevronDownIcon} from "@heroicons/react/16/solid";
 
 export default function TableHeading({ sort_feild, sort_direction , children , name , chengeMethod = () => {} }) {
     return (
-        <th onClick={(e) => chengeMethod(name)} >
+        <th onClick={(e) => chengeMethod(name)}  >
             <div className="px-3 py-3 flex items-center jsutify-between gap-1 cursor-pointer">
                 {children}
                 <div>
