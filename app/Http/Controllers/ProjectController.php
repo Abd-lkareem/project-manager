@@ -7,9 +7,15 @@ use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\TaskResource;
+use App\Enums\projectStatus;
+use Illuminate\Support\Facades\Storage;
+use App\Traits\fileOperations;
+
+
 
 class ProjectController extends Controller
 {
+    use fileOperations ;
     /**
      * Display a listing of the resource.
      */
@@ -22,7 +28,8 @@ class ProjectController extends Controller
         return inertia('Project/index' ,[
             'projects' => ProjectResource::collection($projects) ,
             'queryParams' => count(request()->query()) > 0 ?request()->query() :  null ,
-            'success' => session('success')
+            'result' => session('result') ,
+            
         ]);
     }
 
@@ -39,19 +46,21 @@ class ProjectController extends Controller
      * Store a newly created resource in storage.
      */
     public function store(StoreProjectRequest $request)
-    {        
-        $data = $request->validated();
-        $file = isset($data['image']) ?  $data['image'] : null;
+    {       
 
-        if($file)
-            $path = $file->store('images', 'public'); 
-        
-        Project::create([
-            ...$data ,
-            'image_path' => $path ?? null
+        $data = $request->validated();
+
+        $project = Project::create($data);
+
+        $image_path = isset($data['image']) ?  $this->storeFile($data['image'] ,'images/projects' , 'project_' . $project->id) : null;
+
+        $project->update([
+            'image_path' => $image_path
+
         ]);
 
-        return to_route('projects.index')->with('success' , 'Project Was Created');
+        return to_route('projects.index')->with('result' , [ 'message' => 'Project Was Created' , 'status' => true] );
+
     }
 
     /**
@@ -75,7 +84,7 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
-        //
+        return inertia('Project/edit' , [ 'project' => new ProjectResource($project) ,  ]);
     }
 
     /**
@@ -83,7 +92,24 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
-        //
+        $data  = $request->validated();
+        $image = $data['image'] ?? null; 
+
+        if($image)
+        {
+            if($project->image_path)
+                $this->deleteFile($project->image_path);
+
+            $data['image_path'] = $this->storeFile($image , 'images/projects' , 'project_'.$project->id);
+
+        }
+
+        $project->update($data);
+
+        return to_route('projects.index')->with('result' , [ 'message' => 'Project Was Updated' , 'status' => true] );
+
+        
+
     }
 
     /**
@@ -91,6 +117,12 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        //
+        if($project->isCompleted())
+            return to_route('projects.index')->with('result' , [ 'message' => 'you can not delete completed project' , 'status' => false] );
+
+        $project->delete_project();
+        return to_route('projects.index')->with('result' , [ 'message' => 'the project was deleted successfully' , 'status' => true] );
+
+        
     }
 }

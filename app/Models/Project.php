@@ -5,10 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\projectStatus;
+use App\Traits\fileOperations;
+
+
 
 class Project extends Model
 {
-    use HasFactory;
+    use HasFactory ,  fileOperations;
 
     protected $fillable = [
         'name' ,
@@ -55,5 +58,18 @@ class Project extends Model
         return $this->belongsTo(User::Class , 'updated_by');
     }
 
+    public function isCompleted()
+    {
+        return $this->status == projectStatus::COMPLETED->value;
+    }
+
+    public function delete_project()
+    {
+        $this->tasks()->delete();
+    
+        if($this->image_path)
+            $this->deleteFile($this->image_path);
+        $this->delete();
+    }
 
 }

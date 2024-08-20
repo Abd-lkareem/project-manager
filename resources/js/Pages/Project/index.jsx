@@ -1,14 +1,24 @@
 import Authenticated from "@/Layouts/AuthenticatedLayout";
-import {Head , Link , router} from "@inertiajs/react";
+import {Head , Link , router } from "@inertiajs/react";
+import { forwardRef, useEffect, useRef } from 'react';
+
 import Pagination  from "@/Components/pagination";
 import TableHeading  from "@/Components/TableHeading";
 import TextInput  from "@/Components/TextInput";
 import SelectedInput  from "@/Components/SelectedInput";
 import {PROJECT_STATUS_TEXT_MAP ,PROJECT_STATUS , PROJECT_STATUS_CLASS_MAP}  from "@/constants.jsx";
 
-export default function Index({auth , projects , success , queryParams = null}){
+export default function Index({auth , projects  , result ,  queryParams = null}){
     queryParams = queryParams || {};
 
+
+    useEffect (() => {
+        setTimeout(function(){
+            document.getElementById("message").style.display = "none"; 
+           }, 3000);
+
+
+    })
 
     const serachFeildChange =(fieldName , value) => {
         if(value)
@@ -48,6 +58,15 @@ export default function Index({auth , projects , success , queryParams = null}){
         router.get(route('projects.index') , queryParams)        
 
     }
+
+    const DeleteProject = (project , e)=>{
+        if(!window.confirm('are you sure ?'))
+            return ;
+        
+        router.delete(route('projects.destroy' , project.id ))
+    }
+
+    
     return (
         <Authenticated
         user={auth.user}
@@ -59,17 +78,18 @@ export default function Index({auth , projects , success , queryParams = null}){
 
             <Link href={route('projects.create')} className="bg-emerald-500 py-2 px-6
              rounded shadow transition-all  text-white hover:bg-emerald-600">
-            Add New
+            Add New 
             </Link>
         </div>
         }
         >
             <Head title="Projects"/>
 
-
-            <div className="py-12">
+            <div className="py-12" >
                 <div className="max-w-7xl  mx-auto sm:px-6 lg:px-8">
-                    {success && <div style={{margin : 'auto', marginBottom : 20, width : '50%'}} className="block text-center bg-emerald-500  rounded py-5 mb-5 px-4 text-white">{success}</div>}
+                {result && <div  id="message" style={{ margin : 'auto', marginBottom : 20, width : '50%'}} className={" text-center rounded py-5 mb-5 px-4 text-white " + (result['status'] ? "bg-emerald-500 " : "bg-red-400 ") }>{result['message']}</div>
+                }
+
 
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">    
                         <div className="p-6 text-gray-900 dark:text-gray-100">   
@@ -150,9 +170,9 @@ export default function Index({auth , projects , success , queryParams = null}){
                                         <td className="px-3 py-3">{project.created_at}</td>
                                         <td className="px-3 py-3">{project.due_date}</td>
                                         <td className="px-3 py-3">{project.created_by.name}</td>
-                                        <td className="px-3 py-3">
+                                        <td className="px-3 py-3 text-nowrap">
                                             <Link href={route('projects.edit' , project.id )} className="font-meduim text-blue-600 dark:text-blue-500 hover:underline mx-1">Edit</Link>
-                                            <Link href={route('projects.destroy' , project.id )} className="font-meduim text-blue-600 dark:text-red-500 hover:underline mx-1">Delete</Link>
+                                            <button onClick={(e)=>DeleteProject(project)} className="font-meduim text-blue-600 dark:text-red-500 hover:underline mx-1">Delete</button>
                                         </td>
 
 
